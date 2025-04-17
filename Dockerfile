@@ -13,6 +13,10 @@ RUN dotnet publish new_Prorject_API.csproj -c Release -o /app/publish
 # Stage 2: Run
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=build /app/publish ./
+
+# ✅ สำคัญสำหรับ Railway
+ENV ASPNETCORE_URLS=http://+:${PORT}
+EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "new_Prorject_API.dll"]
