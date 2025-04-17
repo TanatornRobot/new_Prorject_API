@@ -1,21 +1,28 @@
-﻿# -------- Build Stage --------
+﻿# ==============================
+# 1. Runtime Image (.NET 8)
+# ==============================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 80
+
+# ==============================
+# 2. Build Image (.NET SDK 8)
+# ==============================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy only .csproj file to use layer caching and restore early
-COPY *.csproj ./
-RUN dotnet restore
+# คัดลอกไฟล์ .csproj และ restore dependencies
+COPY new_Prorject_API.csproj ./
+RUN dotnet restore new_Prorject_API.csproj
 
-# Copy the rest of the source code
-COPY . . 
-RUN dotnet publish -c Release -o /app/publish
+# คัดลอกไฟล์โปรเจคที่เหลือทั้งหมด แล้วทำ build และ publish
+COPY . .
+RUN dotnet publish new_Prorject_API.csproj -c Release -o /app/publish
 
-# -------- Runtime Stage --------
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# ==============================
+# 3. Final Image
+# ==============================
+FROM base AS final
 WORKDIR /app
 
-# Copy build result from previous stage
-COPY --from=build /app/publish .
-
-# Set the entry point of the application
-ENTRYPOINT ["dotnet", "new_Prorject_API.dll"]
+# คัดลอกไฟล์ publish
