@@ -1,28 +1,22 @@
-# ==============================
-# 1. Runtime Image (.NET 8)
-# ==============================
+Ôªø# Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 
-# ==============================
-# 2. Build Image (.NET SDK 8)
-# ==============================
+# Build image
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# §—¥≈Õ°‰ø≈Ï .csproj ·≈– restore dependencies
+# ‚úÖ ‡πÉ‡∏ä‡πâ‡∏ä‡∏∑‡πà‡∏≠‡πÑ‡∏ü‡∏•‡πå‡∏ó‡∏µ‡πà‡∏ñ‡∏π‡∏Å‡∏ï‡πâ‡∏≠‡∏á
 COPY new_Prorject_API.csproj ./
 RUN dotnet restore new_Prorject_API.csproj
 
-# §—¥≈Õ°‰ø≈Ï‚ª√‡®§∑’Ë‡À≈◊Õ∑—ÈßÀ¡¥ ·≈È«∑” build ·≈– publish
+# Copy source code and build
 COPY . .
 RUN dotnet publish new_Prorject_API.csproj -c Release -o /app/publish
 
-# ==============================
-# 3. Final Image
-# ==============================
+# Final image
 FROM base AS final
 WORKDIR /app
-
-# §—¥≈Õ°‰ø≈Ï publish
+COPY --from=build /app/publish .
+ENTRYPOINT ["dotnet", "new_Prorject_API.dll"]
